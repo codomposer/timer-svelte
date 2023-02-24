@@ -1,82 +1,78 @@
 <script>
+  import { onMount, onDestroy } from "svelte"
   import { withPrevious } from "svelte-previous"
 
+  import Swiper from "swiper"
+  import "swiper/swiper-bundle.css"
+
   export let value
+  export let max
+  export let key
 
   const [current, previous] = withPrevious(0)
   $: $current = value
 
   let different = false
+  let items = []
+  let swiper
+  let xx = value === "0" ? 1 : 2
+
+  for (let i = 0; i <= Number(max); i++) {
+    items.push((Number(max) + xx + Number(value) - i) % (Number(max) + 1))
+  }
+
+  console.log(items)
+  onMount(() => {
+    swiper = new Swiper(`.${key}-mySwiper`, {
+      slidesPerView: 1,
+      direction: "vertical",
+      loop: true,
+    })
+  })
+
   $: if (Number($previous) !== Number($current)) {
     different = true
+    swiper?.slideNext()
   }
-  $: console.log(different)
 </script>
 
-{#if different}
-  <div class="wrapper">
-    <div class={`letter ${different && "sweep"}`}>
-      <span class="top">{$previous}</span>
-      <span class="down">{$current}</span>
+<div class="container">
+  <div class={`swiper ${key}-mySwiper`}>
+    <div class="swiper-wrapper">
+      <!-- Your slides here -->
+      {#each items as item}
+        <div class="swiper-slide">
+          {item}
+        </div>
+      {/each}
     </div>
   </div>
-{:else}
-  <span class="block">{$current}</span>
-{/if}
+</div>
 
 <style>
-  span {
-    font-size: 3rem;
-    color: white;
-  }
-
-  .letter span {
-    font-size: 3rem;
-    line-height: 3rem;
-    color: white;
-  }
-
-  .block {
-    width: 40px;
-    height: 60px;
-    border-radius: 10px;
-    background-color: #ffffff23;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .wrapper {
+  .container {
     position: relative;
-    width: 40px;
-    height: 60px;
     border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow-y: hidden;
-    background-color: #ffffff23;
-  }
-
-  .letter {
-    position: absolute;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    /* overflow-y: hidden; */
   }
-
-  .sweep {
-    animation: sweep 1s ease-out infinite;
+  .swiper {
+    width: 40px;
+    height: 60px;
+    border-radius: 10px;
+    background-color: #ffffff23;
   }
-
-  @keyframes sweep {
-    0% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(-25px);
-    }
+  .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background-color: #ffffff23;
+    font-size: 2rem;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 </style>
